@@ -58,6 +58,8 @@ export class ChatComponent {
     if (this.isLocked() || !text || this.loading()) return;
 
     this.messages.update((m) => [...m, { type: 'user', text }]);
+
+    // Limpa o input
     this.question.set('');
     this.loading.set(true);
 
@@ -65,6 +67,7 @@ export class ChatComponent {
       next: (res) => {
         this.remaining.set(res.remaining);
         this.messages.update((m) => [...m, { type: 'bot', text: res.answer }]);
+
         if (this.remaining() <= 0) this.isLocked.set(true);
         this.loading.set(false);
       },

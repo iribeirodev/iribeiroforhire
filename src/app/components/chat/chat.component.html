@@ -1,0 +1,51 @@
+<div class="main-wrapper">
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>Itamar Ribeiro</h1>
+        <span class="subtitle">Especialista em Desenvolvimento de Software</span>
+      </div>
+      <p class="counter">
+        Restantes: <strong>{{ remaining() }}</strong>
+      </p>
+    </header>
+
+    <div class="chat-box" #chatContainer>
+      @for (msg of messages(); track $index) {
+        <div [class]="'row ' + msg.type">
+          @if (msg.type === 'bot') {
+            <div class="avatar-wrapper">
+              <img src="https://ui-avatars.com/api/?name=Itamar+Ribeiro&background=0984e3&color=fff&bold=true" class="avatar" alt="IA">
+            </div>
+          }
+          <div class="bubble">
+            <div [innerHTML]="msg.text | markdown | async"></div>
+          </div>
+          @if (msg.type === 'user') {
+            <div class="avatar-wrapper">
+              <img src="https://ui-avatars.com/api/?name=Voce&background=cbd5e1&color=334155&bold=true" class="avatar" alt="Você">
+            </div>
+          }
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="row bot">
+          <div class="avatar-wrapper">
+            <img src="https://ui-avatars.com/api/?name=Itamar+Ribeiro&background=0984e3&color=fff&bold=true" class="avatar">
+          </div>
+          <div class="bubble typing">
+            <div class="typing-indicator"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="input-group">
+      <textarea [(ngModel)]="question" (keyup.control.enter)="send()" placeholder="Pergunte sobre minha experiência..."></textarea>
+      <button [disabled]="isLocked() || loading() || !question()" (click)="send()">
+        {{ loading() ? '...' : 'Enviar' }}
+      </button>
+    </div>
+  </div>
+</div>

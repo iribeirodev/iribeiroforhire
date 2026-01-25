@@ -27,6 +27,7 @@ export class ChatComponent {
   loading = signal(false);
   remaining = signal(10);
   isLocked = signal(false);
+  suggestions = signal<string[]>([]);
 
   private chatContainer = viewChild<ElementRef>('chatContainer');
 
@@ -42,15 +43,39 @@ export class ChatComponent {
     this.chatService.getHistory().subscribe({
       next: (data) => {
         const history: Message[] = [];
-        data.forEach((item) => {
-          history.push({ type: 'user', text: item.questionText });
-          history.push({ type: 'bot', text: item.answerText });
-        });
+
+        if (data.length === 0) {
+          history.push({
+            type: 'bot',
+            text: 'Olá! Sou o assistente virtual do Itamar. Como posso ajudar você a conhecer melhor a trajetória profissional dele hoje?',
+          });
+
+          // Define as perguntas sugeridas apenas se não houver histórico
+          this.suggestions.set([
+            'Quais as principais tecnologias do Itamar?',
+            'Fale sobre a experiência dele com .NET.',
+            'O Itamar tem experiência com IA Generativa?',
+          ]);
+        } else {
+          data.forEach((item) => {
+            history.push({ type: 'user', text: item.questionText });
+            history.push({ type: 'bot', text: item.answerText });
+          });
+          this.suggestions.set([]); // Limpa as sugestões se já houver conversa
+        }
+
         this.messages.set(history);
         this.remaining.set(Math.max(0, 10 - data.length));
         if (this.remaining() <= 0) this.isLocked.set(true);
       },
     });
+  }
+
+  // Função para enviar a sugestão ao clicar
+  selectSuggestion(text: string) {
+    this.question.set(text);
+    this.suggestions.set([]); // Esconde as sugestões após o primeiro clique
+    this.send();
   }
 
   send() {

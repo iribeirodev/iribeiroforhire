@@ -3,9 +3,7 @@
     <header>
       <div class="header-content">
         <h1>Itamar Ribeiro</h1>
-        <span class="subtitle"
-          >Especialista em Desenvolvimento de Software</span
-        >
+        <span class="subtitle">Especialista em Desenvolvimento de Software</span>
       </div>
       <p class="counter">
         Restantes: <strong>{{ remaining() }}</strong>
@@ -37,7 +35,9 @@
         </div>
         }
       </div>
-      } @if (loading()) {
+      }
+
+      @if (loading()) {
       <div class="row bot">
         <div class="avatar-wrapper">
           <img
@@ -53,6 +53,16 @@
       </div>
       }
     </div>
+
+    @if (suggestions().length > 0) {
+    <div class="suggestions-container">
+      @for (sug of suggestions(); track sug) {
+        <button class="suggestion-btn" (click)="selectSuggestion(sug)">
+          {{ sug }}
+        </button>
+      }
+    </div>
+    }
 
     <div class="input-group">
       <textarea

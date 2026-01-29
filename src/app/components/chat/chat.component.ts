@@ -83,8 +83,6 @@ export class ChatComponent {
     if (this.isLocked() || !text || this.loading()) return;
 
     this.messages.update((m) => [...m, { type: 'user', text }]);
-
-    // Limpa o input
     this.question.set('');
     this.loading.set(true);
 
@@ -93,15 +91,35 @@ export class ChatComponent {
         this.remaining.set(res.remaining);
         this.messages.update((m) => [...m, { type: 'bot', text: res.answer }]);
 
-        if (this.remaining() <= 0) this.isLocked.set(true);
+        if (this.remaining() <= 0) {
+          this.isLocked.set(true);
+        }
+
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        this.loading.set(false);
+        let errorMessage =
+          'Desculpe, ocorreu um erro na conexão. Tente novamente mais tarde.';
+
+        if (err.status === 429) {
+          errorMessage =
+            err.error?.message || 'Limite de perguntas atingido para hoje.';
+          this.isLocked.set(true);
+          this.remaining.set(0);
+        } else if (err.status === 400) {
+          if (err.error?.errors) {
+            const key = Object.keys(err.error.errors)[0];
+            errorMessage = err.error.errors[key][0];
+          } else if (err.error?.message) {
+            errorMessage = err.error.message;
+          }
+        }
+
         this.messages.update((m) => [
           ...m,
-          { type: 'bot', text: 'Erro na conexão.' },
+          { type: 'bot', text: errorMessage },
         ]);
-        this.loading.set(false);
       },
     });
   }
